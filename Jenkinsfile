@@ -2,12 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Pull Code') {
-            steps {
-                git ' https://github.com/Bigbulany/Practice-Automation.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t my-first-app:v3 .'
