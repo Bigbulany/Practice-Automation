@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-first-app:v3 .'
+                sh 'docker build -t my-first-app:${BUILD_NUMBER} .'
             }
         }
 
