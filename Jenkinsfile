@@ -14,7 +14,7 @@ pipeline {
                 kubectl apply -f deployment.yaml
                 kubectl apply -f service.yaml
                 kubectl apply -f ingress.yaml
-                kubectl rollout restart deployment my-app
+                kubectl set image deployment/my-app my-container=my-first-app:${BUILD_NUMBER}
                 '''
             }
         }
