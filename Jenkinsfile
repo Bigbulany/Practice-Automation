@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Pull Code') {
+            steps {
+                git ' https://github.com/Bigbulany/Practice-Automation.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t my-first-app:v3 .'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+                kubectl apply -f ingress.yaml
+                kubectl rollout restart deployment my-app
+                '''
+            }
+        }
+    }
+}
