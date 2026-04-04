@@ -5,7 +5,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                docker build -t my-first-app:${BUILD_NUMBER} .
+                docker build -t  valdevops7/my-first-app:${BUILD_NUMBER} .
                 docker push valdevops7/my-first-app:${BUILD_NUMBER}
                 '''
             }
