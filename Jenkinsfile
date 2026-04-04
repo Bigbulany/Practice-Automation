@@ -5,8 +5,8 @@ pipeline {
         IMAGE_NAME = "valdevops7/my-first-app"
         DEPLOYMENT_NAME = "my-app"
         CONTAINER_NAME = "my-container"
+        ENVIRONMENT = "dev"
     }
-
     stages {
 
         stage('Build & Push Docker Image') {
@@ -31,7 +31,7 @@ pipeline {
                 kubectl apply -f deployment.yaml
                 kubectl apply -f service.yaml
                 kubectl apply -f ingress.yaml
-                kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=$IMAGE_NAME:$BUILD_NUMBER
+                kubectl set image deployment/${ENVIRONMENT}-${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${IMAGE_NAME}:${BUILD_NUMBER}
                 '''
             }
         }
