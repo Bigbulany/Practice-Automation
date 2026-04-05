@@ -5,8 +5,8 @@ pipeline {
         IMAGE_NAME = "valdevops7/my-first-app"
         DEPLOYMENT_NAME = "my-app"
         CONTAINER_NAME = "my-container"
-        ENVIRONMENT = "dev"
     }
+
     stages {
 
         stage('Build & Push Docker Image') {
@@ -25,13 +25,26 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to Dev') {
             steps {
                 sh '''
-                kubectl apply -f deployment.yaml
-                kubectl apply -f service.yaml
-                kubectl apply -f ingress.yaml
-                kubectl set image deployment/${ENVIRONMENT}-${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${IMAGE_NAME}:${BUILD_NUMBER}
+                kubectl set image deployment/dev-$DEPLOYMENT_NAME \
+                $CONTAINER_NAME=$IMAGE_NAME:$BUILD_NUMBER
+                '''
+            }
+        }
+
+        stage('Approval for Prod') {
+            steps {
+                input message: "Deploy to Production?"
+            }
+        }
+
+        stage('Deploy to Prod') {
+            steps {
+                sh '''
+                kubectl set image deployment/prod-$DEPLOYMENT_NAME \
+                $CONTAINER_NAME=$IMAGE_NAME:$BUILD_NUMBER
                 '''
             }
         }
