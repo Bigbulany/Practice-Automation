@@ -31,10 +31,10 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh '''
-                kubectl set image deployment/$ENV-$DEPLOYMENT_NAME \
+                sh """
+                kubectl set image deployment/${ENV}-$DEPLOYMENT_NAME \
                 $CONTAINER_NAME=$IMAGE_NAME:$BUILD_NUMBER
-                '''
+                """
             }
         }
 
