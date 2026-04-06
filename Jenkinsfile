@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        choice(name: 'ENV', choices: ['dev', 'prod'], description: 'Select the environment to deploy to')
+        choice(name: 'ENV', choices: ['dev', 'prod'], description: 'Choose environment')
     }
 
     environment {
@@ -20,20 +20,44 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh '''
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    docker build -t $IMAGE_NAME:$BUILD_NUMBER .
-                    docker push $IMAGE_NAME:$BUILD_NUMBER
-                    '''
+                    sh """
+                    echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                    docker build -t \$IMAGE_NAME:\$BUILD_NUMBER .
+                    docker push \$IMAGE_NAME:\$BUILD_NUMBER
+                    """
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Dev (Auto)') {
+            when {
+                expression { return params.ENV == 'dev' }
+            }
             steps {
                 sh """
-                kubectl set image deployment/${ENV}-$DEPLOYMENT_NAME \
-                $CONTAINER_NAME=$IMAGE_NAME:$BUILD_NUMBER
+                kubectl set image deployment/dev-\$DEPLOYMENT_NAME \
+                \$CONTAINER_NAME=\$IMAGE_NAME:\$BUILD_NUMBER
+                """
+            }
+        }
+
+        stage('Approval for Prod') {
+            when {
+                expression { return params.ENV == 'dev' }
+            }
+            steps {
+                input message: "Deploy to Production?"
+            }
+        }
+
+        stage('Deploy to Prod') {
+            when {
+                expression { return params.ENV == 'prod' || params.ENV == 'dev' }
+            }
+            steps {
+                sh """
+                kubectl set image deployment/prod-\$DEPLOYMENT_NAME \
+                \$CONTAINER_NAME=\$IMAGE_NAME:\$BUILD_NUMBER
                 """
             }
         }
