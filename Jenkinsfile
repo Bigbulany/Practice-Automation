@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(name: 'ENV', choices: ['dev', 'prod'], description: 'Select the environment to deploy to')
+    }
+
     environment {
         IMAGE_NAME = "valdevops7/my-first-app"
         DEPLOYMENT_NAME = "my-app"
@@ -28,22 +32,7 @@ pipeline {
         stage('Deploy to Dev') {
             steps {
                 sh '''
-                kubectl set image deployment/dev-$DEPLOYMENT_NAME \
-                $CONTAINER_NAME=$IMAGE_NAME:$BUILD_NUMBER
-                '''
-            }
-        }
-
-        stage('Approval for Prod') {
-            steps {
-                input message: "Deploy to Production?"
-            }
-        }
-
-        stage('Deploy to Prod') {
-            steps {
-                sh '''
-                kubectl set image deployment/prod-$DEPLOYMENT_NAME \
+                kubectl set image deployment/${ENV}-$DEPLOYMENT_NAME \
                 $CONTAINER_NAME=$IMAGE_NAME:$BUILD_NUMBER
                 '''
             }
