@@ -32,7 +32,7 @@ resource "kubernetes_deployment_v1" "dev_app" {
       spec {
         container {
           name  = "my-container"
-          image = "valdevops7/my-first-app:24"
+          image = "valdevops7/my-first-app:32"
 
           port {
             container_port = 80
