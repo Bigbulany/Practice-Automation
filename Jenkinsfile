@@ -12,6 +12,15 @@ pipeline {
     }
 
     stages {
+        stage('Terraform Apply') {
+            steps {
+                sh '''
+                cd terraform-k8s
+                terraform init
+                terraform apply -auto-approve
+                '''
+            }
+        }
 
         stage('Build & Push Docker Image') {
             steps {
@@ -28,7 +37,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Deploy to Dev (Auto)') {
             when {
                 expression { return params.ENV == 'dev' }

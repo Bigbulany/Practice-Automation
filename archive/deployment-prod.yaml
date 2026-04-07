@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-my-app
+  labels:
+    app: my-app
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+        env: prod
+    spec:
+      containers:
+      - name: my-container
+        image: my-first-app:v2
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
