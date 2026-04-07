@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Terraform Apply') {
             when {
-                changeSet "terraform-k8s/**"
+                changeSet "**/terraform-k8s/**"
             }
             steps {
                 sh '''
