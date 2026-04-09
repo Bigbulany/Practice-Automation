@@ -12,6 +12,7 @@ pipeline {
     }
 
     stages {
+
         stage('Terraform Apply') {
             when {
                 changeset "terraform-k8s/**"
@@ -22,14 +23,15 @@ pipeline {
                     usernameVariable: 'AWS_ACCESS_KEY_ID',
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
-                sh '''
-                export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                    sh '''
+                    export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                    export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
-                cd terraform-k8s
-                terraform init
-                terraform apply -auto-approve -var="image=valdevops7/my-first-app:${BUILD_NUMBER}"
-                '''
+                    cd terraform-k8s
+                    terraform init
+                    terraform apply -auto-approve -var="image=valdevops7/my-first-app:${BUILD_NUMBER}"
+                    '''
+                }
             }
         }
 
@@ -48,10 +50,10 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy to Dev (Auto)') {
             when {
-                expression { return params.ENV == 'dev' }
+                expression { params.ENV == 'dev' }
             }
             steps {
                 sh """
@@ -63,7 +65,7 @@ pipeline {
 
         stage('Approval for Prod') {
             when {
-                expression { return params.ENV == 'dev' }
+                expression { params.ENV == 'dev' }
             }
             steps {
                 input message: "Deploy to Production?"
@@ -72,7 +74,7 @@ pipeline {
 
         stage('Deploy to Prod') {
             when {
-                expression { return params.ENV == 'prod' || params.ENV == 'dev' }
+                expression { params.ENV == 'prod' || params.ENV == 'dev' }
             }
             steps {
                 sh """
@@ -84,4 +86,4 @@ pipeline {
 
     }
 }
-}    
+
