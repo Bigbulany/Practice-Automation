@@ -17,7 +17,15 @@ pipeline {
                 changeset "terraform-k8s/**"
             }
             steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-creds',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
                 sh '''
+                export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+
                 cd terraform-k8s
                 terraform init
                 terraform apply -auto-approve -var="image=valdevops7/my-first-app:${BUILD_NUMBER}"
