@@ -20,7 +20,7 @@ pipeline {
                 sh '''
                 cd terraform-k8s
                 terraform init
-                terraform apply -auto-approve
+                terraform apply -auto-approve -var="image=valdevops7/my-first-app:${BUILD_NUMBER}"
                 '''
             }
         }
