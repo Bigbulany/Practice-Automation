@@ -18,14 +18,14 @@ module "dev_app" {
   source   = "./modules/app"
   app_name = "my-app"
   env      = "dev"
-  image    = dev_image
+  image    = var.dev_image
 }
 
 module "prod_app" {
   source   = "./modules/app"
   app_name = "my-app"
   env      = "prod"
-  image    = prod_image
+  image    = var.prod_image
 }
 
 module "ingress" {
