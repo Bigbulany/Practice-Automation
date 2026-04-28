@@ -45,7 +45,7 @@ pipeline {
                     terraform init
                     terraform apply -auto-approve \
                     -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" \
-                    -var="prod_image=\$IMAGE_NAME:stable"
+                    -var="prod_image=\$IMAGE_NAME:\$BUILD_NUMBER"
                     """
                 }
             }
