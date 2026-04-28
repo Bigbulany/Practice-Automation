@@ -7,33 +7,9 @@ pipeline {
 
     environment {
         IMAGE_NAME = "valdevops7/my-first-app"
-        DEPLOYMENT_NAME = "my-app"
-        CONTAINER_NAME = "my-container"
     }
 
     stages {
-
-        stage('Terraform Apply') {
-            when {
-                changeset "terraform-k8s/**"
-            }
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'aws-creds',
-                    usernameVariable: 'AWS_ACCESS_KEY_ID',
-                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                )]) {
-                    sh '''
-                    export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                    export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-
-                    cd terraform-k8s
-                    terraform init
-                    terraform apply -auto-approve -var="image=valdevops7/my-first-app:${BUILD_NUMBER}"
-                    '''
-                }
-            }
-        }
 
         stage('Build & Push Docker Image') {
             steps {
@@ -51,15 +27,27 @@ pipeline {
             }
         }
 
-        stage('Deploy to Dev (Auto)') {
+        stage('Deploy to Dev') {
             when {
                 expression { params.ENV == 'dev' }
             }
             steps {
-                sh """
-                kubectl set image deployment/dev-\$DEPLOYMENT_NAME \
-                \$CONTAINER_NAME=\$IMAGE_NAME:\$BUILD_NUMBER
-                """
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-creds',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    sh """
+                    export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                    export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+
+                    cd terraform-k8s
+                    terraform init
+                    terraform apply -auto-approve \
+                    -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" \
+                    -var="prod_image=\$IMAGE_NAME:stable"
+                    """
+                }
             }
         }
 
@@ -77,10 +65,22 @@ pipeline {
                 expression { params.ENV == 'prod' || params.ENV == 'dev' }
             }
             steps {
-                sh """
-                kubectl set image deployment/prod-\$DEPLOYMENT_NAME \
-                \$CONTAINER_NAME=\$IMAGE_NAME:\$BUILD_NUMBER
-                """
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-creds',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    sh """
+                    export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                    export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+
+                    cd terraform-k8s
+                    terraform init
+                    terraform apply -auto-approve \
+                    -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" \
+                    -var="prod_image=\$IMAGE_NAME:\$BUILD_NUMBER"
+                    """
+                }
             }
         }
 

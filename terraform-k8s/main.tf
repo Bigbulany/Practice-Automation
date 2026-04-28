@@ -1,4 +1,5 @@
-variable "image" {}
+variable "dev_image" {}
+variable "prod_image" {}
 
 terraform {
   backend "s3" {
@@ -17,14 +18,14 @@ module "dev_app" {
   source   = "./modules/app"
   app_name = "my-app"
   env      = "dev"
-  image    = var.image
+  image    = dev_image
 }
 
 module "prod_app" {
   source   = "./modules/app"
   app_name = "my-app"
   env      = "prod"
-  image    = var.image
+  image    = prod_image
 }
 
 module "ingress" {
