@@ -46,7 +46,7 @@ pipeline {
                     cd terraform-k8s
                     terraform init
                     terraform apply -auto-approve \
-                    -target=module.dev \
+                    -target=module.dev_app \
                     -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" \
             
                     """
@@ -80,7 +80,7 @@ pipeline {
                     cd terraform-k8s
                     terraform init
                     terraform apply -auto-approve \
-                    -target=module.prod \
+                    -target=module.prod_app \
                     -var="prod_image=\$IMAGE_NAME:\$BUILD_NUMBER"
                     """
                 }
