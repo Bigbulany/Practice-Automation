@@ -22,6 +22,8 @@ pipeline {
                     echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
                     docker build -t \$IMAGE_NAME:\$BUILD_NUMBER .
                     docker push \$IMAGE_NAME:\$BUILD_NUMBER
+                    docker tag \$IMAGE_NAME:\$BUILD_NUMBER \$IMAGE_NAME:stable
+                    docker push \$IMAGE_NAME:stable
                     """
                 }
             }
@@ -45,7 +47,7 @@ pipeline {
                     terraform init
                     terraform apply -auto-approve \
                     -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" \
-                    -var="prod_image=\$IMAGE_NAME:stable"
+                    -var="prod_image=\$IMAGE_NAME:\$BUILD_NUMBER"
                     """
                 }
             }
@@ -66,18 +68,6 @@ pipeline {
             }
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh """
-                    echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
-                    docker tag \$IMAGE_NAME:\$BUILD_NUMBER \$IMAGE_NAME:stable
-                    docker push \$IMAGE_NAME:stable
-                    """
-                }
-                
-                withCredentials([usernamePassword(
                     credentialsId: 'aws-creds',
                     usernameVariable: 'AWS_ACCESS_KEY_ID',
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
@@ -90,7 +80,7 @@ pipeline {
                     terraform init
                     terraform apply -auto-approve \
                     -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" \
-                    -var="prod_image=\$IMAGE_NAME:\$stable"
+                    -var="prod_image=\$IMAGE_NAME:\$BUILD_NUMBER"
                     """
                 }
             }
@@ -98,5 +88,4 @@ pipeline {
 
     }
 }
-
 
