@@ -22,8 +22,6 @@ pipeline {
                     echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
                     docker build -t \$IMAGE_NAME:\$BUILD_NUMBER .
                     docker push \$IMAGE_NAME:\$BUILD_NUMBER
-                    docker tag \$IMAGE_NAME:\$BUILD_NUMBER \$IMAGE_NAME:stable
-                    docker push \$IMAGE_NAME:stable
                     """
                 }
             }
@@ -47,8 +45,7 @@ pipeline {
                     terraform init
                     terraform apply -auto-approve \
                     -target=module.dev_app \
-                    -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" \
-            
+                    -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" 
                     """
                 }
             }
