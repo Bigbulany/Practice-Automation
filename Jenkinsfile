@@ -45,7 +45,8 @@ pipeline {
                     terraform init
                     terraform apply -auto-approve \
                     -target=module.dev_app \
-                    -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" 
+                    -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" \
+                    -var="prod_image=\$IMAGE_NAME:\$BUILD_NUMBER"
                     """
                 }
             }
@@ -78,6 +79,7 @@ pipeline {
                     terraform init
                     terraform apply -auto-approve \
                     -target=module.prod_app \
+                    -var="dev_image=\$IMAGE_NAME:\$BUILD_NUMBER" \
                     -var="prod_image=\$IMAGE_NAME:\$BUILD_NUMBER"
                     """
                 }
